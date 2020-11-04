@@ -1,6 +1,6 @@
 from flask import Flask, url_for
-from markupsafe import escape
-
+from flask import request, jsonify
+from scrap import step
 app = Flask(__name__)
 
 
@@ -9,11 +9,11 @@ def index():
     return 'index'
 
 
-@app.route('/user/<username>')
-def profile(username):
-    return '{}\'s profile'.format(escape(username))
-
-
-with app.test_request_context():
-    print(url_for('index'))
-    print(url_for('profile', username='John Doe'))
+@app.route('/crawler', methods=['POST', 'GET'])
+def crawler():
+    if request.method == 'POST':
+        url = request.form.get('url')
+        if url is None:
+            return "url not found", 400
+        step(url, None)
+        return

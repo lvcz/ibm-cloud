@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: ibm-scrap
+  name: ibm-service
+  labels:
+    app: ibm
+spec:
+  selector:
+    app: ibm
+  type: NodePort
+  ports:
+    - name: ibm
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 30007

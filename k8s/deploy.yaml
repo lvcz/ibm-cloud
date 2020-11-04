@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ibm-scrap
+  labels:
+    name: ibm-scrap
+    app: ibm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ibm-scrap
+  name: ibm-scrap
+  labels:
+    app: ibm-scrap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ibm
+  template:
+    metadata:
+      namespace: ibm-scrap
+      name: ibm
+      labels:
+        app: ibm
+    spec:
+      imagePullSecrets:
+        - name: all-icr-io
+      restartPolicy: Always
+      containers:
+
+        - name: ibm
+          image: de.icr.io/lvcz/ibm-cloud:0.0.0
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: ibm-conf
+            - secretRef:
+                name: ibm-secrets
+
+          
+
