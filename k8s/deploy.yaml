@@ -31,26 +31,10 @@ spec:
       containers:
 
         - name: ibm
-          image: de.icr.io/lvcz/ibm-cloud:0.0.0
+          image: de.icr.io/lvcz/ibm-cloud:0.1.2
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
                 name: ibm-conf
             - secretRef:
                 name: ibm-secrets
----
-#
-#apiVersion: mongodb.com/v1
-#kind: MongoDB
-#metadata:
-#  name: mongo
-#spec:
-#  version: 4.2.2-ent
-#  opsManager:
-#    configMapRef:
-#      name: mongo-metadata
-#  credentials: <mycredentials>
-#  type: Standalone
-#  persistent: true
-#
-

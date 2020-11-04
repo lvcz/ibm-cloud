@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: mongodb
     app.kubernetes.io/component: mongodb
-    failure-domain.beta.kubernetes.io/region: eu-de
+    failure-domain.beta.kubernetes.io/region: fra
     failure-domain.beta.kubernetes.io/zone: "02"
 spec:
   capacity:
