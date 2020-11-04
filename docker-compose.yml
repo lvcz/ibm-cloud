@@ -2,9 +2,9 @@ version: "3.8"
 services:
   web:
     build: .
-    image: registry.eu-de.bluemix.net/lvcz/ibm-cloud:0.0.0
+    image: registry.eu-de.bluemix.net/lvcz/ibm-cloud:0.1.1
     environment:
-      MONGO_CONN: mongo
+      MONGO_CONN: localhost
       MONGO_USERNAME: root
       MONGO_PASSWORD: example
     ports:

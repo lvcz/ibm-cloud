@@ -25,14 +25,14 @@ def create_new_link_model(current_link, status_code, links, father_url, error=No
     return to_store.get('id')
 
 
-def get_all_children(current_id):
+def get_all_children(current_url):
     conn = environ.get('MONGO_CONN')
     username = environ.get('MONGO_USERNAME')
     password = environ.get('MONGO_PASSWORD')
     client = MongoClient('mongodb://%s:%s@%s' % (username, password, conn))
     db = client.ibmscrap
     collection = db.link
-    result = collection.find({'father_url': current_id})
+    result = collection.find({'father_url': current_url})
     client.close()
     return result
 

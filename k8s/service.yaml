@@ -10,8 +10,5 @@ spec:
     app: ibm
   type: NodePort
   ports:
-    - name: ibm
-      protocol: TCP
-      port: 5000
-      targetPort: 5000
-      nodePort: 30007
+    - port: 5000
+#      nodePort: 30237

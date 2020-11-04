@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+  labels:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/component: mongodb
+    failure-domain.beta.kubernetes.io/region: eu-de
+    failure-domain.beta.kubernetes.io/zone: "02"
+spec:
+  capacity:
+    storage: "8Gi"
+  accessModes:
+    - ReadWriteOnce
+  flexVolume:
+    driver: "ibm/ibmc-block"
+    options:
+      "Lun": "0"
+      "TargetPortal": "<IP_address>"
+      "VolumeID": "183418456"
+      "volumeName": "DSW02SEL2151698-1"
