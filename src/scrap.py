@@ -3,29 +3,39 @@ import requests
 from requests import HTTPError, Timeout, ConnectionError
 from bs4 import BeautifulSoup
 from multiprocessing import Process
-from database import *
+from database import save_url, was_crawled
+from http import HTTPStatus
 
 
-def step(current_url, father_url):
-    if check_if_been_crawled(current_url) > 0:
+def step(current_url, parent_url):
+    if was_crawled(current_url):
         return
     try:
         page = requests.get(current_url)
-        if page.status_code == 200:
-            data = page.text
-            soup = BeautifulSoup(data, features="html.parser")
-            links = []
-            for link in soup.find_all(attrs={'href': re.compile("http")}):
-                links.append(link.get('href'))
-            create_new_link_model(current_url, page.status_code, links, father_url)
-            for link in set(links):
-                procs = []
-                proc = Process(target=step, args=(link, current_url))
-                proc.start()
-            for proc in procs:
-                proc.join()
-        else:
-            create_new_link_model(current_url, page.status_code, None, father_url)
-    except (HTTPError, Timeout, ConnectionError):
-        create_new_link_model(current_url, 404, None, father_url, error='Fail to get url')
+        if page.status_code == HTTPStatus.OK:
+            html_content = page.text
+            links = extract_urls(html_content)
+            save_url(current_url, page.status_code, parent_url)
+            step_children(current_url, links)
+    except HTTPError as e:
+        save_url(current_url, e.response.status_code, parent_url, error='Failed to crawl url')
+    except (Timeout, ConnectionError) as e:
+        # Log exception. Perhaps retry
         return
+
+
+def extract_urls(html):
+    soup = BeautifulSoup(html, features="html.parser")
+    links = []
+    for link in soup.find_all(attrs={'href': re.compile("http")}):
+        links.append(link.get('href'))
+    return links
+
+
+def step_children(parent_url, links):
+    for link in set(links):
+        procs = []
+        proc = Process(target=step, args=(link, parent_url))
+        proc.start()
+    for proc in procs:
+        proc.join()

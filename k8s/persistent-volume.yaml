@@ -1,15 +1,17 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mongo-pv
+  name: postgresql
   labels:
-    app.kubernetes.io/name: mongodb
-    app.kubernetes.io/component: mongodb
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: postgresqlcb-4c62-40
+    helm.sh/chart: postgresql-9.8.11
     failure-domain.beta.kubernetes.io/region: fra
     failure-domain.beta.kubernetes.io/zone: "02"
 spec:
   capacity:
-    storage: "8Gi"
+    storage: "20Gi"
   accessModes:
     - ReadWriteOnce
   flexVolume:

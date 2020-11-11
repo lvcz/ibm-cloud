@@ -1,61 +1,41 @@
-from pymongo import MongoClient
+from sqlalchemy import *
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from os import environ
 from uuid import uuid4
-port = 27017
+
+engine = create_engine(environ.get('CONN_STRING'))
+metadata = MetaData()
+base = declarative_base()
 
 
-
-def create_new_link_model(current_link, status_code, links, father_url, error=None):
-    conn = environ.get('MONGO_CONN')
-    username = environ.get('MONGO_USERNAME')
-    password = environ.get('MONGO_PASSWORD')
-    client = MongoClient('mongodb://%s:%s@%s' % (username, password, conn))
-    db = client.ibmscrap
-    collection = db.link
-    to_store = {
-        'id': uuid4(),
-        'current_link': current_link,
-        'status_code': status_code,
-        'error': error,
-        'links': links,
-        'father_url': father_url
-    }
-    collection.insert_one(to_store)
-    client.close()
-    return to_store.get('id')
+class Link(base):
+    __tablename__ = 'links'
+    id = Column('id', String(37), primary_key=True),
+    link = Column('link', String(100), nullable=False),
+    status_code = Column('status', Integer),
+    parent = Column('parent', String(100)),
+    error = Column('error', String(100))
 
 
-def get_all_children(current_url):
-    conn = environ.get('MONGO_CONN')
-    username = environ.get('MONGO_USERNAME')
-    password = environ.get('MONGO_PASSWORD')
-    client = MongoClient('mongodb://%s:%s@%s' % (username, password, conn))
-    db = client.ibmscrap
-    collection = db.link
-    result = collection.find({'father_url': current_url})
-    client.close()
-    return result
+metadata.create_all(engine, checkfirst=True)
 
 
-def get_my_node(current_link):
-    conn = environ.get('MONGO_CONN')
-    username = environ.get('MONGO_USERNAME')
-    password = environ.get('MONGO_PASSWORD')
-    client = MongoClient('mongodb://%s:%s@%s' % (username, password, conn))
-    db = client.ibmscrap
-    collection = db.link
-    result = collection.find({'current_link': current_link})
-    client.close()
-    return result
+def save_url(current_url, status_code, parent_url, error=None):
+    maker = sessionmaker(bind=engine)
+    session = maker()
+    new_link = Link(id=str(uuid4()), link=current_url,status_code=status_code, parent_url=parent_url, error=error)
+    session.add(new_link)
+    session.commit()
 
 
-def check_if_been_crawled(current_link):
-    conn = environ.get('MONGO_CONN')
-    username = environ.get('MONGO_USERNAME')
-    password = environ.get('MONGO_PASSWORD')
-    client = MongoClient('mongodb://%s:%s@%s' % (username, password, conn))
-    db = client.ibmscrap
-    collection = db.link
-    result = collection.count_documents({'current_link': current_link})
-    client.close()
-    return result
+def get_my_node(current_url):
+    maker = sessionmaker(bind=engine)
+    session = maker()
+    return session.query(Link).filter(Link.link == current_url).first()
+
+
+def was_crawled(current_url):
+    maker = sessionmaker(bind=engine)
+    session = maker()
+    return session.query(Link).filter(Link.link == current_url).count() > 0

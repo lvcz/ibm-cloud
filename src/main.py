@@ -2,7 +2,7 @@ from flask import Flask, url_for
 from flask import request, jsonify
 from scrap import step
 app = Flask(__name__)
-
+from database import create_new_link_model
 
 @app.route('/')
 def index():
@@ -36,3 +36,8 @@ def get_crawled():
             child_list.append(a)
         my_node['children'] = child_list
         return jsonify(my_node)
+
+
+@app.route('/debug/testdb-connection', methods=['POST'])
+def debug_test_connection():
+    create_new_link_model('test_url', 'error', None)
