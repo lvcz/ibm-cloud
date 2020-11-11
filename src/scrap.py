@@ -37,5 +37,6 @@ def step_children(parent_url, links):
         procs = []
         proc = Process(target=step, args=(link, parent_url))
         proc.start()
+        procs.append(proc)
     for proc in procs:
         proc.join()
